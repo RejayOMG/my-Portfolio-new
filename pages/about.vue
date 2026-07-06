@@ -9,6 +9,10 @@ const experienceStore = useExperienceStore()
 useHead({ title: 'about — motion designer portfolio' })
 
 const rootRef = ref<HTMLElement | null>(null)
+
+// image trail overlay (react bits port, variant 1) — sticker artwork
+// 36 nodes (12 unique stickers, repeated) so more cards can be on screen at once
+const trailImages = Array.from({ length: 36 }, (_, i) => `/img/trail/stickers-${(i % 12) + 1}.webp`)
 let splits: SplitText[] = []
 let triggers: ScrollTrigger[] = []
 
@@ -47,6 +51,10 @@ onBeforeUnmount(() => {
 
 <template>
   <main ref="rootRef" class="about container">
+    <ClientOnly>
+      <ImageTrail class="about__trail" :items="trailImages" />
+    </ClientOnly>
+
     <header class="about__intro">
       <p class="about__lead t-xl" data-reveal>
         i'm a motion designer &amp; 3d artist crafting playful, tactile worlds for brands,
@@ -175,7 +183,15 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 767px) {
-  .about__intro {
+.about__trail {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.about__intro {
     max-width: 100%;
   }
 

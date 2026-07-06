@@ -10,6 +10,7 @@ function toggle() {
   if (!next) {
     // enabling sound implies the user wants audio even if they entered silent
     app.soundEnabled = true
+    audio.unlock(true) // no-op if already unlocked; needed when the intro was skipped
     audio.setEnabled(true)
     audio.play('switch')
   }

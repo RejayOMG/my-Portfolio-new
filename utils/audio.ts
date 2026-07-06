@@ -104,13 +104,16 @@ class AudioManager {
   }
 
   /** play a one-shot effect, throttled per-sound to avoid machine-gunning */
-  play(name: SfxName, throttleMs = 40) {
+  play(name: SfxName, throttleMs = 40, rate = 1) {
     if (!this.unlocked || !this.enabled || this.muted) return
     const now = performance.now()
     const last = this.lastPlayed.get(name) ?? 0
     if (now - last < throttleMs) return
     this.lastPlayed.set(name, now)
-    this.sfx.get(name)?.play()
+    const howl = this.sfx.get(name)
+    if (!howl) return
+    const id = howl.play()
+    if (rate !== 1) howl.rate(rate, id)
   }
 
   /** random smiley blip — returns the index used (1-4) */

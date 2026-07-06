@@ -22,9 +22,11 @@ export default class Gallery {
   revealed = false
   focusing = false
 
-  // the slow auto-drift loop only starts once the entry animation (cards
-  // tumbling down from above) has fully finished
+  // the slow auto-drift loop eases in after the entry animation (cards
+  // tumbling down from above) so the rotation blends smoothly out of the
+  // drop instead of snapping to full speed the moment cards appear.
   private driftReady = false
+  private driftRamp = 0 // 0 → 1, ease-in multiplier applied to AUTO_SPEED
   private driftCall: ReturnType<typeof gsap.delayedCall> | null = null
 
   // spiral motion
@@ -166,12 +168,21 @@ export default class Gallery {
       // scatter the descent — each card tumbles in a beat after the previous
       plane.reveal(baseDelay + i * stagger, duration, drop)
     })
-    // kick off the slow loop the instant the first card starts dropping in —
-    // no dead pause waiting for the whole strand to settle
+    // ease the auto-drift in rather than snapping to full speed. the rotation
+    // starts gently while the first cards are still settling out of their
+    // expoOut drop (whose tail is nearly still), then ramps up to cruising
+    // speed — so the drop flows into the rotation with no visible hand-off.
     this.driftReady = false
+    this.driftRamp = 0
     this.driftCall?.kill()
-    this.driftCall = gsap.delayedCall(baseDelay, () => {
+    gsap.killTweensOf(this, 'driftRamp')
+    this.driftCall = gsap.delayedCall(baseDelay + duration * 0.5, () => {
       this.driftReady = true
+      gsap.to(this, {
+        driftRamp: 1,
+        duration: 1.8,
+        ease: 'power2.inOut',
+      })
     })
     if (this.mode === 'spiral') this.enableInput()
   }
@@ -179,7 +190,10 @@ export default class Gallery {
   /** staggered dissolve keyed by index % 4 (list-mode hide) */
   hideStaggered(onComplete?: () => void) {
     this.revealed = false
+    this.driftReady = false
+    this.driftRamp = 0
     this.driftCall?.kill()
+    gsap.killTweensOf(this, 'driftRamp')
     this.disableInput()
     let done = 0
     const total = this.planes.length
@@ -193,7 +207,10 @@ export default class Gallery {
 
   hideInstant() {
     this.revealed = false
+    this.driftReady = false
+    this.driftRamp = 0
     this.driftCall?.kill()
+    gsap.killTweensOf(this, 'driftRamp')
     this.disableInput()
     this.clearHover()
     for (const plane of this.planes) plane.hideInstant()
@@ -210,9 +227,12 @@ export default class Gallery {
       this.planes.forEach((plane, i) => plane.reveal(0.12 + i * 0.09, 0.9, drop))
       this.revealed = true
       this.driftReady = false
+      this.driftRamp = 0
       this.driftCall?.kill()
-      this.driftCall = gsap.delayedCall(0.12, () => {
+      gsap.killTweensOf(this, 'driftRamp')
+      this.driftCall = gsap.delayedCall(0.12 + 0.45, () => {
         this.driftReady = true
+        gsap.to(this, { driftRamp: 1, duration: 1.8, ease: 'power2.inOut' })
       })
       this.enableInput()
     }
@@ -340,7 +360,7 @@ export default class Gallery {
       !this.focusing &&
       !this.experience.options.reducedMotion
     ) {
-      this.targetProgress += AUTO_SPEED * (delta / 1000)
+      this.targetProgress += AUTO_SPEED * this.driftRamp * (delta / 1000)
     }
 
     // inertial progress

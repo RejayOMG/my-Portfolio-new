@@ -3,6 +3,7 @@ import { gsap } from '~/utils/gsap'
 import { audio } from '~/utils/audio'
 
 const app = useAppStore()
+const router = useRouter()
 
 const overlayRef = ref<HTMLElement | null>(null)
 const dotRef = ref<HTMLElement | null>(null)
@@ -27,6 +28,9 @@ function enter() {
   app.setMuted(false)
   audio.unlock(true)
   app.soundEnabled = true
+
+  // entering the site always lands on the work page, regardless of deep link
+  if (router.currentRoute.value.path !== '/') router.push('/')
 
   timeline?.kill()
   gsap.to(overlayRef.value, {
@@ -83,19 +87,20 @@ function runIntro() {
 
   gsap.set(dot, {
     autoAlpha: 0,
-    y: 34,
-    scaleX: 0.42,
-    scaleY: 0.42,
-    transformOrigin: '50% 50%',
+    y: 26,
+    scaleX: 0.5,
+    scaleY: 0.5,
+    transformOrigin: '50% 100%',
   })
   gsap.set([card, sphere, greeting, identity, finalCopy, entry], { autoAlpha: 0 })
-  gsap.set(card, { scale: 0.18, borderRadius: 999 })
-  gsap.set(sphere, { scale: 0.45, rotation: -12 })
-  gsap.set([greeting, identity, finalCopy], { y: 12 })
-  gsap.set(entry, { scale: 0.96, y: 10 })
+  gsap.set(card, { scale: 0.22, borderRadius: 999 })
+  gsap.set(sphere, { scale: 0.55, rotation: -8 })
+  gsap.set([greeting, identity], { y: 14 })
+  gsap.set(finalCopy, { y: 16 })
+  gsap.set(entry, { scale: 0.94, y: 12 })
 
   timeline = gsap.timeline({
-    defaults: { ease: 'expoOut' },
+    defaults: { ease: 'power3.out' },
     onComplete: () => {
       introReady.value = true
       buttonRef.value?.focus({ preventScroll: true })
@@ -103,40 +108,58 @@ function runIntro() {
   })
 
   timeline
-    // 1. tiny glow dot: rise first, stretch vertically while rising, then drop
-    .to(dot, { autoAlpha: 1, duration: 0.16 }, 0)
+    // 1. tiny glow dot fades in, then launches upward with a vertical stretch
+    //    that eases off toward the apex (anticipation → float)
+    .to(dot, { autoAlpha: 1, duration: 0.35, ease: 'sine.out' }, 0)
     .to(
       dot,
-      { y: -44, scaleX: 0.68, scaleY: 1.38, duration: 0.52, ease: 'power2.out' },
-      0,
+      { y: -46, scaleX: 0.72, scaleY: 1.34, duration: 0.62, ease: 'power2.out' },
+      0.05,
     )
-    // 2. greeting appears during the fall, not before it
-    .to(greeting, { autoAlpha: 1, y: 0, duration: 0.48 }, 0.58)
+    // 2. gravity takes over — accelerate down, squashing back toward round
     .to(
       dot,
-      { y: 6, scaleX: 0.84, scaleY: 1.16, duration: 0.4, ease: 'power2.in' },
-      0.52,
+      { y: 2, scaleX: 0.92, scaleY: 1.06, duration: 0.42, ease: 'power2.in' },
+      0.67,
     )
-    // land → squash → bounce → settle
-    .to(dot, { y: 0, scaleX: 1.22, scaleY: 0.76, duration: 0.12, ease: 'power2.out' }, 0.92)
-    .to(dot, { y: -10, scaleX: 0.92, scaleY: 1.08, duration: 0.18, ease: 'power2.out' }, 1.04)
-    .to(dot, { y: 0, scaleX: 1, scaleY: 1, duration: 0.3, ease: 'springOut' }, 1.22)
-    .to(greeting, { autoAlpha: 0, y: -8, duration: 0.42 }, 1.95)
-    // 3. abstract logo card + identity
-    .to(dot, { autoAlpha: 0, scaleX: 0.72, scaleY: 0.72, duration: 0.38 }, 2.05)
+    // land: one soft elastic settle instead of hard-cut squash/bounce steps
+    .to(dot, { scaleX: 1.24, scaleY: 0.78, duration: 0.1, ease: 'power2.out' }, 1.09)
+    .to(
+      dot,
+      { y: 0, scaleX: 1, scaleY: 1, duration: 0.95, ease: 'elastic.out(1, 0.42)' },
+      1.19,
+    )
+    // greeting rises to meet the ball as it lands
+    .to(greeting, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'expoOut' }, 0.95)
+    // 3. morph dot → logo card (overlap the crossfade so it reads as one shape)
+    .to(greeting, { autoAlpha: 0, y: -10, duration: 0.5, ease: 'power2.in' }, 2.15)
+    .to(dot, { autoAlpha: 0, scaleX: 1.35, scaleY: 1.35, duration: 0.45, ease: 'power2.in' }, 2.2)
     .to(
       card,
-      { autoAlpha: 1, scale: 1, borderRadius: 18, duration: 0.78, ease: 'expoOut' },
-      2.12,
+      { autoAlpha: 1, scale: 1, borderRadius: 18, duration: 0.85, ease: 'expoOut' },
+      2.34,
     )
-    .to(identity, { autoAlpha: 1, y: 0, duration: 0.6 }, 2.44)
-    .to(identity, { autoAlpha: 0, y: -8, duration: 0.38 }, 3.6)
-    // 4. glossy sphere + final positioning copy
-    .to(card, { autoAlpha: 0, scale: 0.72, borderRadius: 999, duration: 0.55 }, 3.64)
-    .to(sphere, { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.85, ease: 'springOut' }, 3.82)
-    .to(finalCopy, { autoAlpha: 1, y: 0, duration: 0.68 }, 4.3)
-    // 5. entry button appears only after the story finishes
-    .to(entry, { autoAlpha: 1, scale: 1, y: 0, duration: 0.55 }, 5.15)
+    .fromTo(
+      identity,
+      { autoAlpha: 0, y: 14 },
+      { autoAlpha: 1, y: 0, duration: 0.65, ease: 'expoOut' },
+      2.62,
+    )
+    // 4. morph logo card → glossy sphere (overlap again)
+    .to(identity, { autoAlpha: 0, y: -10, duration: 0.5, ease: 'power2.in' }, 3.85)
+    .to(card, { autoAlpha: 0, scale: 0.8, borderRadius: 999, duration: 0.55, ease: 'power2.in' }, 3.9)
+    .fromTo(
+      sphere,
+      { autoAlpha: 0, scale: 0.72, rotation: -8 },
+      { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.9, ease: 'back.out(1.5)' },
+      4.05,
+    )
+    // gentle settle breath so the sphere feels alive, not frozen
+    .to(sphere, { scale: 1.04, duration: 0.5, ease: 'sine.inOut' }, 4.95)
+    .to(sphere, { scale: 1, duration: 0.7, ease: 'sine.inOut' }, 5.45)
+    .to(finalCopy, { autoAlpha: 1, y: 0, duration: 0.75, ease: 'expoOut' }, 4.55)
+    // 5. entry button eases in last, once the story has settled
+    .to(entry, { autoAlpha: 1, scale: 1, y: 0, duration: 0.6, ease: 'back.out(1.4)' }, 5.35)
 }
 
 onMounted(() => {
@@ -144,6 +167,11 @@ onMounted(() => {
     if (sessionStorage.getItem('portfolio:intro-seen') === '1') {
       visible.value = false
       app.introDone = true
+      // the intro gate is skipped this session, so re-arm audio here.
+      // howler auto-resumes the audio context on the first user gesture.
+      audio.setMuted(app.muted)
+      audio.unlock(true)
+      app.soundEnabled = true
       return
     }
   } catch {}
