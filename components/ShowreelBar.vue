@@ -11,7 +11,7 @@ const textPathRef = ref<SVGTextPathElement | null>(null)
 // perimeter at runtime and stretch the whole label to exactly one perimeter, so
 // the repeats tile the outline once with natural spacing. scrolling by one unit
 // (perimeter / repeatCount) lands the pattern back on itself → seamless, endless.
-const repeatCount = 3
+const repeatCount = 2
 const scrollTo = ref(0)
 
 function openReel() {
@@ -66,19 +66,19 @@ onMounted(() => {
         -->
         <path
           id="showreel-rect"
-          d="M42,52 h116 a22,22 0 0 1 22,22 v52 a22,22 0 0 1 -22,22 h-116 a22,22 0 0 1 -22,-22 v-52 a22,22 0 0 1 22,-22 z"
+          d="M59,57 h82 a16,16 0 0 1 16,16 v54 a16,16 0 0 1 -16,16 h-82 a16,16 0 0 1 -16,-16 v-54 a16,16 0 0 1 16,-16 z"
           transform="rotate(-14 100 100)"
         />
       </defs>
       <text ref="labelRef" class="showreel__ring-text">
         <textPath ref="textPathRef" href="#showreel-rect" startOffset="0">
-          showreel&#160;&#160;✲&#160;&#160;2025&#160;&#160;•&#160;&#160;showreel&#160;&#160;✲&#160;&#160;2025&#160;&#160;•&#160;&#160;showreel&#160;&#160;✲&#160;&#160;2025&#160;&#160;•&#160;&#160;
+          showreel&#160;&#160;✲&#160;&#160;2025&#160;&#160;•&#160;&#160;showreel&#160;&#160;✲&#160;&#160;2025&#160;&#160;•&#160;&#160;
           <animate
             ref="animateRef"
             attributeName="startOffset"
             from="0"
             :to="scrollTo"
-            dur="20s"
+            dur="30s"
             repeatCount="indefinite"
           />
         </textPath>
@@ -90,11 +90,11 @@ onMounted(() => {
 <style scoped>
 .showreel {
   position: fixed;
-  bottom: -9.5rem;
-  left: -9.5rem;
+  bottom: -23.25rem;
+  left: -14.25rem;
   z-index: 40;
-  width: 33rem;
-  height: 33rem;
+  width: 42.9rem;
+  height: 42.9rem;
   transition: transform 0.6s var(--ease-spring);
 }
 
@@ -110,9 +110,9 @@ onMounted(() => {
 }
 
 .showreel__card-inner {
-  width: 17.25rem;
-  height: 12.6rem;
-  border-radius: 1.8rem;
+  width: 22.4rem;
+  height: 16.4rem;
+  border-radius: 2.3rem;
   transform: rotate(-14deg);
   background:
     radial-gradient(circle at 30% 65%, #ff6b4a 0%, #ff2f7b 32%, transparent 60%),
@@ -132,27 +132,27 @@ onMounted(() => {
 }
 
 /*
-  font-size is expressed relative to the SVG viewBox (200 units). the container
-  grew by 1.5×, so we shrink the type by the same factor to keep its on-screen
-  size unchanged while the outline path scales up with the card.
+  font-size is expressed relative to the SVG viewBox (200 units), so the label
+  scales together with the card as the container grows — spacing stays natural
+  because the perimeter/textLength ratio is resolution-independent.
 */
 .showreel__ring-text {
-  font-size: 6.2px;
-  letter-spacing: 0.9px;
+  font-size: 8.7px;
+  letter-spacing: 0.85px;
   fill: var(--color-text);
 }
 
 @media (max-width: 767px) {
   .showreel {
-    width: 24rem;
-    height: 24rem;
-    bottom: -6rem;
-    left: -5rem;
+    width: 31.2rem;
+    height: 31.2rem;
+    bottom: -9rem;
+    left: -7.5rem;
   }
 
   .showreel__card-inner {
-    width: 12.75rem;
-    height: 9.3rem;
+    width: 16.6rem;
+    height: 12.1rem;
   }
 }
 </style>

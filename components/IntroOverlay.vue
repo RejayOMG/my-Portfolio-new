@@ -199,11 +199,7 @@ onBeforeUnmount(() => {
           <span class="logo-shape logo-shape--coral" />
         </div>
 
-        <div ref="sphereRef" class="intro__sphere">
-          <span class="intro__sphere-eye intro__sphere-eye--left" />
-          <span class="intro__sphere-eye intro__sphere-eye--right" />
-          <span class="intro__sphere-smile" />
-        </div>
+        <div ref="sphereRef" class="intro__sphere" />
       </div>
 
       <div class="intro__text-wrap">
@@ -244,6 +240,21 @@ onBeforeUnmount(() => {
   justify-content: center;
   color: var(--color-text);
   text-align: center;
+}
+
+/*
+  animated elements start hidden in css so the prerendered html paints as a
+  plain dark screen — gsap then drives them via inline styles (autoAlpha).
+*/
+.intro__seed,
+.intro__logo-card,
+.intro__sphere,
+.intro__greeting,
+.intro__identity,
+.intro__final-copy,
+.intro__entry {
+  opacity: 0;
+  visibility: hidden;
 }
 
 .intro__mark-wrap {
@@ -323,51 +334,8 @@ onBeforeUnmount(() => {
 .intro__sphere {
   width: clamp(4.8rem, 7.3vw, 6.6rem);
   aspect-ratio: 1;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 23% 28%, rgba(255, 255, 255, 0.95) 0 8%, transparent 18%),
-    radial-gradient(circle at 60% 25%, rgba(142, 255, 77, 0.95) 0 9%, transparent 17%),
-    radial-gradient(circle at 74% 30%, rgba(25, 255, 150, 0.95) 0 8%, transparent 17%),
-    radial-gradient(circle at 68% 48%, #1affb3 0 20%, transparent 39%),
-    radial-gradient(circle at 37% 34%, #efffe8 0 15%, transparent 34%),
-    radial-gradient(circle at 72% 16%, #7dff3f 0 10%, transparent 35%),
-    radial-gradient(circle at 37% 78%, #03100d 0 35%, transparent 58%),
-    linear-gradient(135deg, #fbfff1 0%, #68ff27 26%, #10f0b5 58%, #030504 100%);
-  box-shadow:
-    inset -0.65rem -0.95rem 1.6rem rgba(0, 0, 0, 0.62),
-    inset 0.55rem 0.45rem 1.2rem rgba(255, 255, 255, 0.42),
-    0 1.2rem 2.8rem rgba(0, 0, 0, 0.36);
-}
-
-.intro__sphere-eye {
-  position: absolute;
-  top: 29%;
-  width: 0.66rem;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: rgba(229, 255, 185, 0.78);
-  box-shadow: inset 0.08rem 0.08rem 0.2rem rgba(255, 255, 255, 0.75);
-}
-
-.intro__sphere-eye--left {
-  left: 45%;
-}
-
-.intro__sphere-eye--right {
-  left: 60%;
-}
-
-.intro__sphere-smile {
-  position: absolute;
-  left: 28%;
-  top: 47%;
-  width: 47%;
-  height: 22%;
-  transform: rotate(8deg);
-  border-right: 0.3rem solid transparent;
-  border-bottom: 0.28rem solid #07130f;
-  border-left: 0.3rem solid transparent;
-  border-radius: 0 0 50% 50%;
+  background: url('/img/smiley.png') center / contain no-repeat;
+  filter: drop-shadow(0 1.2rem 2.8rem rgba(0, 0, 0, 0.36));
 }
 
 .intro__text-wrap {

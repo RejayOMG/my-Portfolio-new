@@ -43,19 +43,7 @@ onBeforeUnmount(() => anim?.destroy())
       @mouseenter="onEnter"
       @click="playSmiley"
     >
-      <span class="logo__ball">
-        <svg viewBox="0 0 32 32" class="logo__face" aria-hidden="true">
-          <circle cx="11.5" cy="13.5" r="1.8" fill="#0a0a0a" />
-          <circle cx="20.5" cy="13.5" r="1.8" fill="#0a0a0a" />
-          <path
-            d="M10 18.5 Q16 24 22 18.5"
-            fill="none"
-            stroke="#0a0a0a"
-            stroke-width="2.2"
-            stroke-linecap="round"
-          />
-        </svg>
-      </span>
+      <span class="logo__ball" />
       <span class="logo__tag t-xs" aria-hidden="true">click me :)</span>
     </button>
     <div ref="smileyRef" class="logo__smiley" aria-hidden="true" />
@@ -82,21 +70,10 @@ onBeforeUnmount(() => anim?.destroy())
 
 .logo__ball {
   position: relative;
-  display: grid;
-  place-items: center;
+  display: block;
   width: 5.2rem;
   height: 5.2rem;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 32% 28%, #a7ffd8 0%, #21ffc0 34%, #0f8f68 72%, #06231a 100%);
-  box-shadow:
-    inset -0.4rem -0.6rem 1.2rem rgba(0, 0, 0, 0.55),
-    inset 0.3rem 0.4rem 0.8rem rgba(255, 255, 255, 0.35);
-}
-
-.logo__face {
-  width: 3.4rem;
-  height: 3.4rem;
+  background: url('/img/smiley.png') center / contain no-repeat;
 }
 
 .logo__tag {

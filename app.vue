@@ -28,8 +28,8 @@ useHead({
     <VideoModal />
     <CustomCursor />
 
-    <ClientOnly>
-      <IntroOverlay />
-    </ClientOnly>
+    <!-- rendered in the prerendered html (no ClientOnly) so the entry screen
+         paints immediately — otherwise the page frame flashes first -->
+    <IntroOverlay />
   </div>
 </template>
